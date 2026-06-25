@@ -6,6 +6,8 @@ Aplicación **Control Plane** del [Proyecto IAW 2026](https://iaw-2026.github.io
 
 Panel administrativo centralizado (Etapa 3): gestión unificada de todas las apps, activación/desactivación de usuarios y resolución de disputas.
 
+Deploy en vercel (develop): https://etapa-3-control-plane-perfume-libre-ms69wuphg-nicoo54s-projects.vercel.app/
+
 ---
 
 Enunciado completo: <https://iaw-2026.github.io/proyecto/>
