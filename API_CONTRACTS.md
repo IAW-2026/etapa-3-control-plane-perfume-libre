@@ -167,7 +167,7 @@ _Ninguno._
 [
   {
     "status": "success",
-    "mensaje": "La orden ord_1002 ha sido cancelada exitosamente
+    "mensaje": "La orden ord_1002 ha sido cancelada exitosamente"
   }
 ]
 ```
@@ -196,7 +196,7 @@ _Ninguno._
 [
   {
     "status": "success",
-    "mensaje": "La orden ord_1002 ha sido reactivada
+    "mensaje": "La orden ord_1002 ha sido reactivada"
   }
 ]
 ```
