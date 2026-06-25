@@ -530,10 +530,21 @@ _Ninguno._
 - `api-key`: `[key]` (definir key)
 
 **Body Requerido (Request):**
+El cuerpo de la petición acepta un objeto con las siguientes opciones estrictas:
+
+```typescript
+type DecisionTipo = "RECHAZAR" | "OCULTAR" | "ELIMINAR";
+
+interface RequestBody {
+  decision: DecisionTipo;
+}
+```
+
+_Ejemplo de JSON enviado (`application/json`):_
 
 ```json
 {
-  "decision": "OCULTAR" // Posibles: RECHAZAR, OCULTAR, ELIMINAR
+  "decision": "OCULTAR"
 }
 ```
 
