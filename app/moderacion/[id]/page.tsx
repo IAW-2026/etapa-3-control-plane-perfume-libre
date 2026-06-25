@@ -66,7 +66,6 @@ export default async function DetalleModeracionPage({
           </div>
 
           <div className="flex gap-3 pt-4 border-t">
-            {/* Botón Rechazar (Sin alerta por ser seguro) */}
             <form action={accionModerar.bind(null, "RECHAZAR")}>
               <Button variant="outline" type="submit">
                 Rechazar Denuncia

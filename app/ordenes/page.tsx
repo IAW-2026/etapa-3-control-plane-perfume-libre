@@ -13,18 +13,12 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { formatearDinero } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
 export default async function OrdenesPage() {
   const ordenes = await obtenerOrdenes();
-
-  const formatearDinero = (monto: number) =>
-    new Intl.NumberFormat("es-AR", {
-      style: "currency",
-      currency: "ARS",
-      maximumFractionDigits: 0,
-    }).format(monto);
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">

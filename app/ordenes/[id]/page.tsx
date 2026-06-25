@@ -15,6 +15,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { formatearDinero } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -27,13 +28,6 @@ export default async function DetalleOrdenPage({
   const orden = await obtenerDetalleOrden(id);
 
   if (!orden) notFound();
-
-  const formatearDinero = (monto: number) =>
-    new Intl.NumberFormat("es-AR", {
-      style: "currency",
-      currency: "ARS",
-      maximumFractionDigits: 0,
-    }).format(monto);
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500 max-w-5xl mx-auto">
@@ -65,7 +59,7 @@ export default async function DetalleOrdenPage({
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* COLUMNA 1: Actores de la transacción */}
+        {/* Actores de la transacción */}
         <div className="space-y-6">
           <Card>
             <CardHeader className="pb-3">
@@ -118,7 +112,7 @@ export default async function DetalleOrdenPage({
           </Card>
         </div>
 
-        {/* COLUMNA 2 y 3: Pagos, Items y Logística */}
+        {/* Pagos, Items y Logística */}
         <div className="md:col-span-2 space-y-6">
           <div className="grid grid-cols-2 gap-4">
             {/* Estado Financiero */}

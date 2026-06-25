@@ -136,9 +136,9 @@ export default async function DetalleUsuarioPage({
           </Card>
         </div>
 
-        {/* COLUMNA 2 Y 3: Métricas de Buyer y Seller */}
+        {/* Métricas de Buyer y Seller */}
         <div className="md:col-span-2 space-y-6">
-          {/* Módulo Buyer */}
+          {/* Buyer */}
           <Card>
             <CardHeader className="bg-secondary/30 border-b border-border/40">
               <CardTitle className="text-base flex items-center gap-2">
@@ -173,7 +173,7 @@ export default async function DetalleUsuarioPage({
             </CardContent>
           </Card>
 
-          {/* Módulo Seller (Solo aparece si el rol incluye vendedor) */}
+          {/* Seller */}
           {usuario.sellerInfo && (
             <Card>
               <CardHeader className="bg-primary/5 border-b border-border/40">
