@@ -31,6 +31,35 @@ _Ninguno._
 ]
 ```
 
+### 1.2 Obtener estadísticas de un comprador
+
+**Método:** `GET`  
+**Ruta:** `/api/admin/usuarios/:id`  
+**Descripción:** Detalle del comprador y su historial de ordenes
+**Headers Requeridos:**
+
+- `api-key`: `[key]` (definir key)
+
+**Body Requerido (Request):**
+_Ninguno._
+
+**Escenario 1: El usuario es un vendedor (200 OK):**
+
+```json
+[
+  {
+    "comprasTotales": 15,
+    "gastadoTotal": 150000,
+    "direcciones": 3
+  }
+]
+```
+
+**Escenario 2: El usuario no es un comprador (404 Not Found)**
+
+> [!NOTE]
+> Si el ID de Clerk proporcionado no existe en su tabla de usuarios, deben retornar un status 404. El Control Plane entenderá automáticamente que es un comprador normal y ocultará el panel de vendedor.
+
 ## 2. Seller App
 
 ### 2.1 Obtener metricas
@@ -56,6 +85,35 @@ _Ninguno._
   }
 ]
 ```
+
+### 2.2 Obtener estadísticas de un Vendedor
+
+**Método:** `GET`  
+**Ruta:** `/api/admin/vendedores/:id`  
+**Descripción:** Devuelve un resumen de la actividad de ventas de un usuario utilizando su `userId` de Clerk.
+**Headers Requeridos:**
+
+- `api-key`: `[key]` (definir key)
+
+**Body Requerido (Request):**
+_Ninguno._
+
+**Escenario 1: El usuario es un vendedor (200 OK):**
+
+```json
+[
+  {
+    "productosActivos": 45,
+    "ventasTotales": 128,
+    "ingresos": 4500000
+  }
+]
+```
+
+**Escenario 2: El usuario no es un vendedor (404 Not Found)**
+
+> [!NOTE]
+> Si el ID de Clerk proporcionado no existe en su tabla de vendedores, deben retornar un status 404. El Control Plane entenderá automáticamente que es un comprador normal y ocultará el panel de vendedor.
 
 ## 3. Shipping App
 
@@ -108,3 +166,31 @@ _Ninguno._
   }
 ]
 ```
+
+### 4.2 Obtener estadísticas de un comprador
+
+**Método:** `GET`  
+**Ruta:** `/api/admin/usuarios/:id/metricas`  
+**Descripción:** Calificacion del vendedor y cant de reportes recibidos
+**Headers Requeridos:**
+
+- `api-key`: `[key]` (definir key)
+
+**Body Requerido (Request):**
+_Ninguno._
+
+**Escenario 1: El usuario es un vendedor (200 OK):**
+
+```json
+[
+  {
+    "calificacion": 4.8,
+    "reportesRecibidos": 5
+  }
+]
+```
+
+**Escenario 2: El usuario no es un comprador (404 Not Found)**
+
+> [!NOTE]
+> Si el ID de Clerk proporcionado no existe en su tabla de usuarios, deben retornar un status 404. El Control Plane entenderá automáticamente que es un comprador normal y ocultará el panel de vendedor.
