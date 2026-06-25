@@ -1,3 +1,6 @@
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+
 export interface ReportePendiente {
   idReporte: string;
   idResena: string;
@@ -56,6 +59,31 @@ export async function ejecutarModeracion(
   idReporte: string,
   decision: "RECHAZAR" | "OCULTAR" | "ELIMINAR",
 ) {
-  "use server";
-  // fetch(`${process.env.FEEDBACK_API_URL}/admin/reportes/${idReporte}/moderar`, { method: 'POST', body: JSON.stringify({ decision }) })
+  const usarApiReal = process.env.USE_REAL_API === "true";
+
+  if (usarApiReal) {
+    try {
+      /*
+      const res = await fetch(`${process.env.FEEDBACK_API_URL}/admin/reportes/${idReporte}/moderar`, {
+        method: 'POST',
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": process.env.SUPERADMIN_SECRET_KEY || ""
+        },
+        body: JSON.stringify({ decision })
+      });
+      if (!res.ok) throw new Error("Error en moderación");
+      */
+    } catch (error) {
+      console.error(
+        `Error ejecutando moderación ${decision} para el reporte ${idReporte}:`,
+        error,
+      );
+    }
+  } else {
+    await new Promise((resolve) => setTimeout(resolve, 500));
+  }
+
+  revalidatePath("/moderacion");
+  redirect("/moderacion");
 }

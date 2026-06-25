@@ -1,6 +1,6 @@
 import {
-  obtenerDetalleReporte,
   ejecutarModeracion,
+  obtenerDetalleReporte,
 } from "@/lib/api/moderacion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -20,6 +20,8 @@ import { ArrowLeft, ShieldAlert } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
+export const dynamic = "force-dynamic";
+
 export default async function DetalleModeracionPage({
   params,
 }: {
@@ -28,7 +30,18 @@ export default async function DetalleModeracionPage({
   const { id } = await params;
   const reporte = await obtenerDetalleReporte(id);
 
-  const accionModerar = ejecutarModeracion.bind(null, id);
+  async function handleRechazar() {
+    "use server";
+    await ejecutarModeracion(id, "RECHAZAR");
+  }
+  async function handleOcultar() {
+    "use server";
+    await ejecutarModeracion(id, "OCULTAR");
+  }
+  async function handleEliminar() {
+    "use server";
+    await ejecutarModeracion(id, "ELIMINAR");
+  }
 
   return (
     <div className="max-w-2xl mx-auto space-y-6 animate-in fade-in duration-500">
@@ -61,53 +74,53 @@ export default async function DetalleModeracionPage({
               <p className="text-xs text-muted-foreground uppercase">
                 Usuario implicado
               </p>
-              <p className="font-mono">{reporte.usuarioReportado}</p>
+              <p className="font-mono text-sm">{reporte.usuarioReportado}</p>
             </div>
           </div>
 
           <div className="flex gap-3 pt-4 border-t">
-            <form action={accionModerar.bind(null, "RECHAZAR")}>
+            {/* Rechazar */}
+            <form action={handleRechazar}>
               <Button variant="outline" type="submit">
                 Rechazar Denuncia
               </Button>
             </form>
 
+            {/* Ocultar */}
             <AlertDialog>
               <AlertDialogTrigger
                 className={cn(buttonVariants({ variant: "secondary" }))}
               >
                 Ocultar Reseña
               </AlertDialogTrigger>
-
               <AlertDialogContent>
                 <AlertDialogHeader>
                   <AlertDialogTitle>¿Ocultar reseña?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    La reseña dejará de ser visible para otros usuarios, pero
-                    podrás restaurarla luego.
+                    La reseña dejará de ser visible para otros usuarios.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                  <form action={accionModerar.bind(null, "OCULTAR")}>
-                    <AlertDialogAction
+                  <form action={handleOcultar}>
+                    <button
                       type="submit"
                       className={cn(buttonVariants({ variant: "default" }))}
                     >
                       Confirmar
-                    </AlertDialogAction>
+                    </button>
                   </form>
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
 
+            {/* Eliminar */}
             <AlertDialog>
               <AlertDialogTrigger
                 className={cn(buttonVariants({ variant: "destructive" }))}
               >
                 Eliminar Reseña
               </AlertDialogTrigger>
-
               <AlertDialogContent>
                 <AlertDialogHeader>
                   <AlertDialogTitle className="text-destructive">
@@ -120,10 +133,13 @@ export default async function DetalleModeracionPage({
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                  <form action={accionModerar.bind(null, "ELIMINAR")}>
-                    <AlertDialogAction type="submit" className="bg-destructive">
+                  <form action={handleEliminar}>
+                    <button
+                      type="submit"
+                      className={cn(buttonVariants({ variant: "destructive" }))}
+                    >
                       Eliminar
-                    </AlertDialogAction>
+                    </button>
                   </form>
                 </AlertDialogFooter>
               </AlertDialogContent>

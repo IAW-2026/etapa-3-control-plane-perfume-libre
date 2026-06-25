@@ -463,3 +463,92 @@ _Ninguno._
 
 > [!NOTE]
 > Si el ID de Clerk proporcionado no existe en su tabla de usuarios, deben retornar un status 404. El Control Plane entenderá automáticamente que es un comprador normal y ocultará el panel de vendedor.
+
+### 4.3 Obtener Reportes Pendientes
+
+**Método:** `GET`  
+**Ruta:** `/api/admin/reportes/pendientes`  
+**Descripción:** Devuelve una lista de los reportes que aún no han sido procesados
+
+**Headers Requeridos:**
+
+- `api-key`: `[key]` (definir key)
+
+**Body Requerido (Request):**
+_Ninguno._
+
+**Ejemplo de respuesta Exitosa (200 OK):**
+
+```json
+[
+  {
+    "idReporte": "rep_1",
+    "idResena": "res_abc",
+    "motivo": "INAPROPIADO",
+    "resenaComentario": "Este perfume no es original...",
+    "calificacion": 1,
+    "fechaReporte": "2026-06-24T10:00:00Z"
+  }
+]
+```
+
+### 4.4 Obtener detalles de un reporte especifico
+
+**Método:** `GET`  
+**Ruta:** `/api/admin/reportes/:idReporte`  
+**Descripción:** Obtiene la información ampliada de un reporte específico para la vista de moderación.
+**Headers Requeridos:**
+
+- `api-key`: `[key]` (definir key)
+
+**Body Requerido (Request):**
+_Ninguno._
+
+**Ejemplo de respuesta Exitosa (200 OK):**
+
+```json
+[
+  {
+    "idReporte": "rep_1",
+    "idResena": "res_abc",
+    "comentarioResena": "Este perfume no es original...",
+    "motivo": "INAPROPIADO",
+    "usuarioReportado": "user_789xyz",
+    "fechaReporte": "2026-06-24T10:00:00Z"
+  }
+]
+```
+
+### 4.5 Ejecutar Decisión de Moderación
+
+**Método:** `POST`  
+**Ruta:** `/api/admin/reportes/:idReporte/moderar`  
+**Descripción:** Aplica la decisión tomada por el administrador. La Feedback App debe encargarse de cambiar el EstadoResena o de crear el registro de ModeracionResena correspondiente.
+
+**Headers Requeridos:**
+
+- `api-key`: `[key]` (definir key)
+
+**Body Requerido (Request):**
+
+```json
+{
+  "decision": "OCULTAR" // Posibles: RECHAZAR, OCULTAR, ELIMINAR
+}
+```
+
+**Ejemplo de respuesta Exitosa (200 OK):**
+
+```json
+[
+  {
+    "status": "success",
+    "mensaje": "La orden ord_1002 ha sido cancelada exitosamente"
+  }
+]
+```
+
+**Escenario 2: Si el reporte no existe (404 Not Found)**
+
+> [!NOTE]
+> Si el reporte no se encuentra, deben retornar un status 404. El Control Plane entenderá automáticamente que el id no existe o esta incorrecto.
