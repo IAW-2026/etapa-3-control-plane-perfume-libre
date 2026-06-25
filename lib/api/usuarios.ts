@@ -16,7 +16,7 @@ export interface UsuarioResumen {
 export type RolUsuario = "Comprador" | "Vendedor" | "Admin" | "Soporte";
 
 export interface UsuarioDetalle extends UsuarioResumen {
-  buyerInfo: {
+  buyerInfo?: {
     comprasTotales: number;
     gastadoTotal: number;
     direcciones: number;
@@ -26,7 +26,7 @@ export interface UsuarioDetalle extends UsuarioResumen {
     ventasTotales: number;
     ingresos: number;
   };
-  feedbackInfo: { calificacion: number; reportesRecibidos: number };
+  feedbackInfo?: { calificacion: number; reportesRecibidos: number };
 }
 
 export async function obtenerUsuarios(): Promise<UsuarioResumen[]> {
@@ -76,13 +76,85 @@ export async function obtenerDetalleUsuario(
 
   if (usarApiReal) {
     try {
-      throw new Error("API Real no configurada");
+      return obtenerDetalleUsuarioReal(id);
     } catch (error) {
       console.warn("Fallo real, usando mock de detalle:", error);
       return obtenerDetalleUsuarioMock(id);
     }
   }
   return obtenerDetalleUsuarioMock(id);
+}
+
+export async function obtenerDetalleUsuarioReal(
+  id: string,
+): Promise<UsuarioDetalle | null> {
+  const usarApiReal = process.env.USE_REAL_API === "true";
+
+  if (!usarApiReal) return obtenerDetalleUsuarioMock(id);
+
+  try {
+    const client = await clerkClient();
+    const user = await client.users.getUser(id);
+
+    const nombre =
+      `${user.firstName || ""} ${user.lastName || ""}`.trim() ||
+      "Usuario sin nombre";
+    const email = user.emailAddresses[0]?.emailAddress || "Sin email";
+    const estado = user.banned ? "Bloqueado" : "Activo";
+
+    const [resBuyer, resSeller, resFeedback] = await Promise.allSettled([
+      fetch(`${process.env.BUYER_API_URL}/admin/usuarios/${id}`),
+      fetch(`${process.env.SELLER_API_URL}/admin/vendedores/${id}`),
+      fetch(`${process.env.FEEDBACK_API_URL}/admin/usuarios/${id}/metricas`),
+    ]);
+
+    const buyerData =
+      resBuyer.status === "fulfilled" && resBuyer.value.ok
+        ? await resBuyer.value.json()
+        : undefined;
+    const sellerData =
+      resSeller.status === "fulfilled" && resSeller.value.ok
+        ? await resSeller.value.json()
+        : undefined;
+    const feedbackData =
+      resFeedback.status === "fulfilled" && resFeedback.value.ok
+        ? await resFeedback.value.json()
+        : undefined;
+
+    return {
+      id,
+      nombre,
+      email,
+      rol: sellerData ? "Vendedor" : "Comprador",
+      estado,
+      fechaRegistro: new Date(user.createdAt).toISOString(),
+      buyerInfo: buyerData
+        ? {
+            comprasTotales: buyerData.comprasTotales,
+            gastadoTotal: buyerData.gastadoTotal,
+            direcciones: buyerData.direcciones,
+          }
+        : undefined,
+
+      sellerInfo: sellerData
+        ? {
+            productosActivos: sellerData.productosActivos,
+            ventasTotales: sellerData.ventasTotales,
+            ingresos: sellerData.ingresos,
+          }
+        : undefined,
+
+      feedbackInfo: feedbackData
+        ? {
+            calificacion: feedbackData.calificacion,
+            reportesRecibidos: feedbackData.reportesRecibidos,
+          }
+        : undefined,
+    };
+  } catch (error) {
+    console.error("Error al obtener detalle del usuario real:", error);
+    return null;
+  }
 }
 
 async function obtenerUsuariosMock(): Promise<UsuarioResumen[]> {
@@ -123,7 +195,6 @@ async function obtenerUsuariosMock(): Promise<UsuarioResumen[]> {
   ];
 }
 
-// TODO: Cambiar luego
 async function obtenerDetalleUsuarioMock(id: string): Promise<UsuarioDetalle> {
   await new Promise((resolve) => setTimeout(resolve, 500));
 
