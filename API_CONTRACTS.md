@@ -261,6 +261,129 @@ _Ninguno._
 > [!NOTE]
 > Si el ID de Clerk proporcionado no existe en su tabla de vendedores, deben retornar un status 404. El Control Plane entenderá automáticamente que es un comprador normal y ocultará el panel de vendedor.
 
+### 2.3 Obtener productos
+
+**Método:** `GET`  
+**Ruta:** `/api/admin/productos`  
+**Descripción:** Devuelve informacion detallada de todos los productos
+
+**Headers Requeridos:**
+
+- `api-key`: `[key]` (definir key)
+
+**Body Requerido (Request):**
+_Ninguno._
+
+**Ejemplo de respuesta Exitosa (200 OK):**
+
+```json
+{
+    "id": "1",
+    "titulo": "Dior Sauvage",
+    "precio": 210000,
+    "stock": 50,
+    "estado": "activo",
+    "vendedorId": "seller_1",
+    "imagenUrl": "https://example.com/dior-sauvage.jpg"
+  },
+  {
+    "id": "2",
+    "titulo": "Versace Eros",
+    "precio": 180000,
+    "stock": 0,
+    "estado": "pausado",
+    "vendedorId": "seller_2",
+    "imagenUrl": "https://example.com/versace-eros.jpg"
+  },
+```
+
+### 2.4 Activar un producto
+
+**Método:** `POST`  
+**Ruta:** `/api/admin/productos/:idProducto/activar`  
+**Descripción:** Cambia el estado de un producto a "activo" para que vuelva a estar visible en el marketplace.
+
+**Headers Requeridos:**
+
+- `api-key`: `[key]` (definir key)
+
+**Body Requerido (Request):**
+_Ninguno._
+
+**Ejemplo de respuesta Exitosa (200 OK):**
+
+```json
+[
+  {
+    "status": "success",
+    "mensaje": "prod_412 activado correctamente"
+  }
+]
+```
+
+**Escenario 2: Si el producto no existe (404 Not Found)**
+
+> [!NOTE]
+> Si el producto no se encuentra, deben retornar un status 404. El Control Plane entenderá automáticamente que el id no existe o esta incorrecto.
+
+### 2.5 Pausar un producto
+
+**Método:** `POST`  
+**Ruta:** `/api/admin/productos/:idProducto/pausar`  
+**Descripción:** Cambia el estado de un producto a "pausado". No elimina el producto, pero lo oculta de la tienda.
+
+**Headers Requeridos:**
+
+- `api-key`: `[key]` (definir key)
+
+**Body Requerido (Request):**
+_Ninguno._
+
+**Ejemplo de respuesta Exitosa (200 OK):**
+
+```json
+[
+  {
+    "status": "success",
+    "mensaje": "prod_412 pausado"
+  }
+]
+```
+
+**Escenario 2: Si el producto no existe (404 Not Found)**
+
+> [!NOTE]
+> Si el producto no se encuentra, deben retornar un status 404. El Control Plane entenderá automáticamente que el id no existe o esta incorrecto.
+
+### 2.6 Eliminar un producto
+
+**Método:** `DELETE`  
+**Ruta:** `/api/admin/productos/:idProducto`  
+**Descripción:** Elimina (o hace borrado lógico / soft delete) un producto del catálogo de la Seller App.
+
+**Headers Requeridos:**
+
+- `api-key`: `[key]` (definir key)
+
+**Body Requerido (Request):**
+_Ninguno._
+
+**Ejemplo de respuesta Exitosa (200 OK):**
+
+```json
+[
+  {
+    "status": "success",
+    "mensaje": "prod_412 borrado exitosamente"
+  }
+]
+```
+
+**Escenario 2: Si el producto no existe (404 Not Found)**
+
+> [!NOTE]
+> Si el producto no se encuentra, deben retornar un status 404. El Control Plane entenderá automáticamente que el id no existe o esta incorrecto.
+
 ## 3. Shipping App
 
 ### 3.1 Obtener metricas

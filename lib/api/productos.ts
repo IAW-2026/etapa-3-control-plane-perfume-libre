@@ -1,3 +1,5 @@
+import { revalidatePath } from "next/cache";
+
 export interface ProductoResumen {
   id: string;
   titulo: string;
@@ -5,6 +7,7 @@ export interface ProductoResumen {
   stock: number;
   estado: "activo" | "pausado" | "borrado";
   vendedorId: string;
+  imagenUrl: string;
 }
 
 export async function obtenerProductos(): Promise<ProductoResumen[]> {
@@ -32,6 +35,7 @@ async function obtenerProductosMock(): Promise<ProductoResumen[]> {
       stock: 50,
       estado: "activo",
       vendedorId: "seller_1",
+      imagenUrl: "https://example.com/dior-sauvage.jpg",
     },
     {
       id: "2",
@@ -40,6 +44,7 @@ async function obtenerProductosMock(): Promise<ProductoResumen[]> {
       stock: 0,
       estado: "pausado",
       vendedorId: "seller_2",
+      imagenUrl: "https://example.com/versace-eros.jpg",
     },
     {
       id: "3",
@@ -48,8 +53,52 @@ async function obtenerProductosMock(): Promise<ProductoResumen[]> {
       stock: 12,
       estado: "activo",
       vendedorId: "seller_1",
+      imagenUrl: "https://example.com/chanel-no5.jpg",
     },
   ];
 }
 
-// TODO: Implementar acciones basicas.
+export async function activarProducto(id: string) {
+  const usarApiReal = process.env.USE_REAL_API === "true";
+
+  if (usarApiReal) {
+    try {
+      // fetch(`${process.env.SELLER_API_URL}/admin/productos/${id}/activar`, { method: "POST", headers: { "x-api-key": process.env.SUPERADMIN_SECRET_KEY || "" } })
+    } catch (error) {
+      console.error("Error activando producto:", error);
+    }
+  } else {
+    await new Promise((resolve) => setTimeout(resolve, 300));
+  }
+  revalidatePath("/productos");
+}
+
+export async function pausarProducto(id: string) {
+  const usarApiReal = process.env.USE_REAL_API === "true";
+
+  if (usarApiReal) {
+    try {
+      // fetch(`${process.env.SELLER_API_URL}/admin/productos/${id}/pausar`, { method: "POST", headers: { "x-api-key": process.env.SUPERADMIN_SECRET_KEY || "" } })
+    } catch (error) {
+      console.error("Error pausando producto:", error);
+    }
+  } else {
+    await new Promise((resolve) => setTimeout(resolve, 300));
+  }
+  revalidatePath("/productos");
+}
+
+export async function borrarProducto(id: string) {
+  const usarApiReal = process.env.USE_REAL_API === "true";
+
+  if (usarApiReal) {
+    try {
+      // fetch(`${process.env.SELLER_API_URL}/admin/productos/${id}`, { method: "DELETE", headers: { "x-api-key": process.env.SUPERADMIN_SECRET_KEY || "" } })
+    } catch (error) {
+      console.error("Error borrando producto:", error);
+    }
+  } else {
+    await new Promise((resolve) => setTimeout(resolve, 300));
+  }
+  revalidatePath("/productos");
+}

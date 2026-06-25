@@ -1,4 +1,10 @@
-import { obtenerProductos } from "@/lib/api/productos";
+// app/productos/page.tsx
+import {
+  activarProducto,
+  borrarProducto,
+  obtenerProductos,
+  pausarProducto,
+} from "@/lib/api/productos";
 import {
   Table,
   TableBody,
@@ -9,7 +15,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Search, MoreVertical } from "lucide-react";
+import { Search, Play, Pause, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { formatearDinero } from "@/lib/utils";
 
@@ -54,7 +60,19 @@ export default async function ProductosPage() {
           <TableBody>
             {productos.map((prod) => (
               <TableRow key={prod.id}>
-                <TableCell className="font-medium">{prod.titulo}</TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 shrink-0 overflow-hidden rounded-md border bg-muted">
+                      <img
+                        src={prod.imagenUrl || "/placeholder-perfume.jpg"}
+                        alt={prod.titulo}
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+                    <span className="font-medium">{prod.titulo}</span>
+                  </div>
+                </TableCell>
+
                 <TableCell className="font-mono text-xs text-muted-foreground">
                   {prod.vendedorId}
                 </TableCell>
@@ -62,16 +80,72 @@ export default async function ProductosPage() {
                 <TableCell>{prod.stock}</TableCell>
                 <TableCell>
                   <Badge
-                    variant={prod.estado === "activo" ? "default" : "secondary"}
+                    variant={
+                      prod.estado === "activo"
+                        ? "default"
+                        : prod.estado === "borrado"
+                          ? "destructive"
+                          : "secondary"
+                    }
                     className="capitalize"
                   >
                     {prod.estado}
                   </Badge>
                 </TableCell>
+
                 <TableCell className="text-right">
-                  <Button variant="ghost" size="icon">
-                    <MoreVertical className="h-4 w-4" />
-                  </Button>
+                  <div className="flex justify-end gap-2">
+                    {prod.estado !== "activo" ? (
+                      <form
+                        action={async () => {
+                          "use server";
+                          await activarProducto(prod.id);
+                        }}
+                      >
+                        <Button
+                          type="submit"
+                          variant="outline"
+                          size="icon"
+                          title="Activar"
+                        >
+                          <Play className="h-4 w-4 text-green-600" />
+                        </Button>
+                      </form>
+                    ) : (
+                      <form
+                        action={async () => {
+                          "use server";
+                          await pausarProducto(prod.id);
+                        }}
+                      >
+                        <Button
+                          type="submit"
+                          variant="outline"
+                          size="icon"
+                          title="Pausar"
+                        >
+                          <Pause className="h-4 w-4 text-yellow-600" />
+                        </Button>
+                      </form>
+                    )}
+
+                    <form
+                      action={async () => {
+                        "use server";
+                        await borrarProducto(prod.id);
+                      }}
+                    >
+                      <Button
+                        type="submit"
+                        variant="destructive"
+                        size="icon"
+                        title="Borrar"
+                        disabled={prod.estado === "borrado"}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </form>
+                  </div>
                 </TableCell>
               </TableRow>
             ))}
