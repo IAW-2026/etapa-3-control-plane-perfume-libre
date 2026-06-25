@@ -1,10 +1,23 @@
 // app/ordenes/[id]/page.tsx
-import { obtenerDetalleOrden } from "@/lib/api/ordenes";
+import {
+  activarOrden,
+  cancelarOrden,
+  obtenerDetalleOrden,
+} from "@/lib/api/ordenes";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, Box, CreditCard, Package, Truck, User } from "lucide-react";
+import {
+  ArrowLeft,
+  Ban,
+  Box,
+  CheckCircle,
+  CreditCard,
+  Package,
+  Truck,
+  User,
+} from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
@@ -29,6 +42,18 @@ export default async function DetalleOrdenPage({
 
   if (!orden) notFound();
 
+  async function handleCancelar() {
+    "use server";
+    await cancelarOrden(id);
+  }
+
+  async function handleActivar() {
+    "use server";
+    await activarOrden(id);
+  }
+
+  const estaCancelada = orden.estadoPago === "Cancelado";
+
   return (
     <div className="space-y-6 animate-in fade-in duration-500 max-w-5xl mx-auto">
       {/* HEADER */}
@@ -48,13 +73,25 @@ export default async function DetalleOrdenPage({
             </p>
           </div>
         </div>
+
         <div className="flex gap-2">
-          <Button
-            variant="destructive"
-            disabled={orden.estadoPago === "Entregado"}
-          >
-            Cancelar Orden
-          </Button>
+          {estaCancelada ? (
+            <form action={handleActivar}>
+              <Button type="submit" className="bg-green-600 hover:bg-green-700">
+                <CheckCircle className="mr-2 h-4 w-4" /> Reactivar Orden
+              </Button>
+            </form>
+          ) : (
+            <form action={handleCancelar}>
+              <Button
+                type="submit"
+                variant="destructive"
+                disabled={orden.estadoEnvio === "Entregado"}
+              >
+                <Ban className="mr-2 h-4 w-4" /> Cancelar Orden
+              </Button>
+            </form>
+          )}
         </div>
       </div>
 
@@ -91,23 +128,6 @@ export default async function DetalleOrdenPage({
                   {orden.vendedorId}
                 </Link>
               </div>
-            </CardContent>
-          </Card>
-
-          {/* Estado en Seller App */}
-          <Card className="bg-primary/5 border-primary/20">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm flex items-center gap-2 text-primary">
-                <Box className="h-4 w-4" /> Estado en Seller App
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-xs text-muted-foreground uppercase mb-1">
-                Suborden del Vendedor
-              </p>
-              <Badge variant="outline" className="uppercase">
-                {orden.sellerInfo?.estadoSubOrden || "Desconocido"}
-              </Badge>
             </CardContent>
           </Card>
         </div>
@@ -160,42 +180,60 @@ export default async function DetalleOrdenPage({
           </div>
 
           {/* Items de la orden */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base flex items-center gap-2">
-                <Package className="h-4 w-4" /> Productos de la Orden
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Producto</TableHead>
-                    <TableHead className="text-center">Cant.</TableHead>
-                    <TableHead className="text-right">Subtotal</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {orden.items.map((item, idx) => (
-                    <TableRow key={idx}>
-                      <TableCell>
-                        <div className="font-medium">{item.nombre}</div>
-                        <div className="text-xs text-muted-foreground font-mono">
-                          {item.productoId}
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-center">
-                        {item.cantidad}
-                      </TableCell>
-                      <TableCell className="text-right font-medium">
-                        {formatearDinero(item.precio * item.cantidad)}
-                      </TableCell>
+          <div className="md:col-span-3">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base flex items-center gap-2">
+                  <Package className="h-4 w-4" /> Productos de la Orden
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Producto</TableHead>
+                      <TableHead className="text-center">Cant.</TableHead>
+                      <TableHead className="text-right">Subtotal</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
+                  </TableHeader>
+                  <TableBody>
+                    {orden.items.map((item, idx) => (
+                      <TableRow key={idx}>
+                        {/* ACÁ AGREGAMOS LA FOTO Y EL NOMBRE LADO A LADO */}
+                        <TableCell>
+                          <div className="flex items-center gap-3">
+                            {/* Usamos un tag <img> con object-cover para que las fotos se vean prolijas */}
+                            <div className="h-12 w-12 shrink-0 overflow-hidden rounded-md border bg-muted">
+                              <img
+                                src={
+                                  item.imagenUrl || "/placeholder-perfume.jpg"
+                                }
+                                alt={item.nombre}
+                                className="h-full w-full object-cover"
+                              />
+                            </div>
+                            <div>
+                              <div className="font-medium">{item.nombre}</div>
+                              <div className="text-xs text-muted-foreground font-mono">
+                                {item.productoId}
+                              </div>
+                            </div>
+                          </div>
+                        </TableCell>
+
+                        <TableCell className="text-center">
+                          {item.cantidad}
+                        </TableCell>
+                        <TableCell className="text-right font-medium">
+                          {formatearDinero(item.precio * item.cantidad)}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     </div>

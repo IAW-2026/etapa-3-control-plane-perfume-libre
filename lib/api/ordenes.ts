@@ -1,3 +1,5 @@
+import { revalidatePath } from "next/cache";
+
 export interface OrdenResumen {
   id: string;
   compradorId: string;
@@ -14,6 +16,7 @@ export interface OrdenDetalle extends OrdenResumen {
     nombre: string;
     cantidad: number;
     precio: number;
+    imagenUrl: string;
   }[];
   envioInfo?: {
     trackingId: string;
@@ -21,10 +24,7 @@ export interface OrdenDetalle extends OrdenResumen {
     direccion: string;
     demoraDias: number;
   };
-  sellerInfo?: { estadoSubOrden: string };
 }
-
-// TODO: Implementar cancelacion y activacion de ordenes
 
 export async function obtenerOrdenes(): Promise<OrdenResumen[]> {
   const usarApiReal = process.env.USE_REAL_API === "true";
@@ -98,7 +98,6 @@ async function obtenerOrdenesMock(): Promise<OrdenResumen[]> {
   ];
 }
 
-// TODO: Modificar
 async function obtenerDetalleOrdenMock(id: string): Promise<OrdenDetalle> {
   await new Promise((resolve) => setTimeout(resolve, 500));
   return {
@@ -115,6 +114,7 @@ async function obtenerDetalleOrdenMock(id: string): Promise<OrdenDetalle> {
         nombre: "Dior Sauvage 100ml",
         cantidad: 1,
         precio: 120000,
+        imagenUrl: "/images/dior-sauvage.jpg",
       },
     ],
     envioInfo: {
@@ -123,8 +123,51 @@ async function obtenerDetalleOrdenMock(id: string): Promise<OrdenDetalle> {
       direccion: "Av. Alem 1253, Bahía Blanca",
       demoraDias: 4,
     },
-    sellerInfo: {
-      estadoSubOrden: id === "ord_1003" ? "retirado" : "preparado",
-    },
   };
+}
+
+export async function cancelarOrden(id: string) {
+  const usarApiReal = process.env.USE_REAL_API === "true";
+
+  if (usarApiReal) {
+    try {
+      /*
+      const res = await fetch(`${process.env.BUYER_API_URL}/admin/ordenes/${id}/cancelar`, {
+        method: "POST",
+        headers: { "x-api-key": process.env.SUPERADMIN_SECRET_KEY || "" }
+      });
+      if (!res.ok) throw new Error("Error al cancelar");
+      */
+    } catch (error) {
+      console.error("Error cancelando la orden:", error);
+    }
+  } else {
+    await new Promise((resolve) => setTimeout(resolve, 500));
+  }
+
+  revalidatePath(`/ordenes/${id}`);
+  revalidatePath("/ordenes");
+}
+
+export async function activarOrden(id: string) {
+  const usarApiReal = process.env.USE_REAL_API === "true";
+
+  if (usarApiReal) {
+    try {
+      /*
+      const res = await fetch(`${process.env.BUYER_API_URL}/admin/ordenes/${id}/activar`, {
+        method: "POST",
+        headers: { "x-api-key": process.env.SUPERADMIN_SECRET_KEY || "" }
+      });
+      if (!res.ok) throw new Error("Error al activar");
+      */
+    } catch (error) {
+      console.error("Error activando la orden:", error);
+    }
+  } else {
+    await new Promise((resolve) => setTimeout(resolve, 500));
+  }
+
+  revalidatePath(`/ordenes/${id}`);
+  revalidatePath("/ordenes");
 }
